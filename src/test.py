@@ -1,64 +1,54 @@
 import cocotb
 from cocotb.clock import Clock
-from cocotb.triggers import Timer, FallingEdge, RisingEdge
+from cocotb.triggers import Timer, FallingEdge
 
 @cocotb.test()
-async def test_matrix_mul(dut):
-    # 1. Start the clock (10ns period = 100MHz)
-    clock = Clock(dut.clk, 10, units="ns")
+async def test_systolic_array(dut):
+    clock = Clock(dut.clk, 20, units="ns") # 50MHz
     cocotb.start_soon(clock.start())
 
-    # 2. Reset the design
-    dut._log.info("Resetting DUT...")
+    # Reset
     dut.ena.value = 1
     dut.ui_in.value = 0
-    dut.uio_in.value = 0
     dut.rst_n.value = 0
-    await Timer(20, units="ns")
+    await Timer(100, units="ns")
     dut.rst_n.value = 1
     await FallingEdge(dut.clk)
 
-    # 3. Load Matrix A: [[2, 3], [4, 5]]
-    # Command for Load A is bit 4 (0001_0000 = 0x10)
-    dut._log.info("Loading Matrix A...")
-    matrix_a = [2, 3, 4, 5]
-    for val in matrix_a:
-        dut.ui_in.value = 0x10 | val  # Set Load A bit + data
-        await FallingEdge(dut.clk)
-    
-    dut.ui_in.value = 0
-    await FallingEdge(dut.clk)
-
-    # 4. Load Matrix B: [[1, 2], [3, 4]]
-    # Command for Load B is bit 5 (0010_0000 = 0x20)
-    dut._log.info("Loading Matrix B...")
-    matrix_b = [1, 2, 3, 4]
-    for val in matrix_b:
-        dut.ui_in.value = 0x20 | val  # Set Load B bit + data
+    # Helper function to send data with a command bit
+    async def send_val(command_bit, val):
+        # Shift val left by 4 because data is ui_in[7:4]
+        dut.ui_in.value = (1 << command_bit) | (val << 4)
         await FallingEdge(dut.clk)
 
+    # 1. Load Matrix A: [[2, 3], [4, 5]]
+    # cmd_load_a is bit 0
+    for v in [2, 3, 4, 5]:
+        await send_val(0, v)
     dut.ui_in.value = 0
     await FallingEdge(dut.clk)
 
-    # 5. Start Computation
-    # Command for Compute is bit 2 (0000_0100 = 0x04)
-    dut._log.info("Starting Computation...")
-    dut.ui_in.value = 0x04
-    await Timer(100, units="ns")
+    # 2. Load Matrix B: [[1, 2], [3, 4]]
+    # cmd_load_b is bit 1
+    for v in [1, 2, 3, 4]:
+        await send_val(1, v)
     dut.ui_in.value = 0
     await FallingEdge(dut.clk)
 
-    # 6. Read Results
-    # Command for Read is bit 3 (0000_1000 = 0x08)
-    dut._log.info("Reading Results...")
-    expected_results = [11, 16, 19, 28]
-    dut.ui_in.value = 0x08
-    
-    for expected in expected_results:
+    # 3. Compute
+    # cmd_compute is bit 2
+    dut.ui_in.value = 0x04 
+    await Timer(200, units="ns") # Wait for the 8-cycle counter in Verilog
+    dut.ui_in.value = 0
+    await FallingEdge(dut.clk)
+
+    # 4. Read Results
+    # cmd_read is bit 3
+    expected = [11, 16, 19, 28]
+    for exp in expected:
+        dut.ui_in.value = 0x08 # cmd_read
         await FallingEdge(dut.clk)
         actual = int(dut.uo_out.value)
-        dut._log.info(f"Read: {actual}, Expected: {expected}")
-        assert actual == expected, f"Matrix mismatch! Got {actual}, wanted {expected}"
-
-    dut.ui_in.value = 0
-    dut._log.info("Test passed successfully!")
+        assert actual == exp, f"Error: Got {actual}, expected {exp}"
+    
+    dut._log.info("Matrix Multiplication Successful!")
