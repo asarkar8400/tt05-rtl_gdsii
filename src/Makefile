@@ -5,6 +5,8 @@
 SIM ?= icarus
 TOPLEVEL_LANG ?= verilog
 
+COMPILE_ARGS += -g2012
+
 # normal simulation
 ifneq ($(GATES),yes)
 
