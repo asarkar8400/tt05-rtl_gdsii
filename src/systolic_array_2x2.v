@@ -1,5 +1,5 @@
 // 2x2 Systolic Array for Matrix Multiplication
-// Computes C = A * B where A, B, C are 2x2 matrices
+// Computes C = A * B (all 2x2 matrices)
 
 module systolic_array_2x2 #(
     parameter DATA_WIDTH = 8
