@@ -9,16 +9,16 @@ The actual test logic is in test.py
 module tb_systolic_array;
 
     // These signals are driven by the Cocotb Python script
-    reg clk;
-    reg rst_n;
-    reg ena;
-    reg [7:0] ui_in;
-    reg [7:0] uio_in;
+    logic clk;
+    logic rst_n;
+    logic ena;
+    logic [7:0] ui_in;
+    logic [7:0] uio_in;
     
     // These signals are read by the Cocotb Python script
-    wire [7:0] uo_out;
-    wire [7:0] uio_out;
-    wire [7:0] uio_oe;
+    logic [7:0] uo_out;
+    logic [7:0] uio_out;
+    logic [7:0] uio_oe;
 
     // Instantiate the Digital Unit Under Test (DUT)
     tt_um_systolic_array dut (
