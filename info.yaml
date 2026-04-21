@@ -10,9 +10,9 @@ project:
   
   # Source files MUST include the src/ prefix
   source_files:
-    - src/systolic_pe.v
-    - src/systolic_array_2x2.v
-    - src/tt_um_systolic_array.v
+    - src/systolic_pe.sv
+    - src/systolic_array_2x2.sv
+    - src/tt_um_systolic_array.sv
 
   # Pin assignments
   pinout:
