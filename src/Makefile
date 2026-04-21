@@ -9,7 +9,7 @@ TOPLEVEL_LANG ?= verilog
 ifneq ($(GATES),yes)
 
 # this is the only part you should need to modify:
-VERILOG_SOURCES += $(PWD)/tb.v $(PWD)/tt_um_systolic_array.v $(PWD)/systolic_array_2x2.v $(PWD)/systolic_pe.v
+VERILOG_SOURCES += $(PWD)/tb.sv $(PWD)/tt_um_systolic_array.sv $(PWD)/systolic_array_2x2.sv $(PWD)/systolic_pe.sv
 
 else
 
@@ -23,7 +23,7 @@ VERILOG_SOURCES += $(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitiv
 VERILOG_SOURCES += $(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v
 
 # this gets copied in by the GDS action workflow
-VERILOG_SOURCES += $(PWD)/tb.v $(PWD)/gate_level_netlist.v
+VERILOG_SOURCES += $(PWD)/tb.sv $(PWD)/gate_level_netlist.v
 endif
 
 # TOPLEVEL is the name of the toplevel module in your Verilog or VHDL file
